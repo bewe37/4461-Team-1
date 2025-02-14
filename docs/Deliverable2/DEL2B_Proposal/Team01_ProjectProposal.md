@@ -1,10 +1,10 @@
 **Section 1:**
 
-The chosen phenomenon of our group is the fabrication of Echo Chambers created from interactions between bots on centralized social networking apps, focusing on how bots will abuse the discussions of current real-world events such as natural disasters.   
-One of the key dynamics we would like to hone in on is between the users and social media platforms, from the perspective of a user, who expects to use a platform to learn about ongoing situations and news in the world. Instead, users encounter bots who often have alternative objectives when pushing certain posts and messages. These bots often consist of content creators and amplifiers that promote disinformation about specific events, but they can occasionally be looking to share factual information.  
-This results in knowledge being skewed, as users on the platform are disinformed and segregated into different groups based on their beliefs. This gives the impression that certain groups on a platform are larger or more influential than they are and creates a large active social media presence for them, ultimately creating an artificial consensus to manipulate public discourse.  
-When the social media platform becomes saturated with discussion on topics unrelated to what the user is looking for, or if the discussion involves misinformation, users who disagree with the topics or recognize the inaccuracy or manipulation of information spread by the bots may choose to leave.  
-This topic is relevant in today's digital age, as social networking apps have made news more accessible, allowing anyone to post updates on ongoing events at any time, regardless of their credentials or sources. However, in some cases users fail to recognize the credibility of these posts and the bias that may be held by the poster, resulting in users becoming disinformed and feeding into the echo chamber by misinforming others. Accordingly, we aim to explore how AI bots cluster together to spread disinformation and how this ripple effect shapes the media ecosystem over time.
+The chosen phenomenon of our group is the fabrication of Echo Chambers created from interactions between bots on X, focusing on how bots will abuse the discussions of current real-world disasters.   
+One of the key dynamics we would like to hone in on is between the users and X, from the perspective of a user, who expects to use a platform to receive the latest updates on disasters in the world. Instead, users encounter bots who often have alternative objectives when pushing certain posts and messages. These bots often consist of content creators and amplifiers that promote disinformation about specific events, but they can occasionally be looking to share factual information.  
+This results in knowledge being skewed, as users on the platform are disinformed and segregated into different groups based on their beliefs. This gives the impression that certain groups on a platform are larger or more influential than they are and creates a large active presence on X for them, ultimately creating an artificial consensus to manipulate public discourse.  
+When X becomes saturated with discussion on topics unrelated to what the user is looking for, or if the discussion involves misinformation, users who disagree with the topics or recognize the inaccuracy or manipulation of information spread by the bots may choose to leave.  
+This topic is relevant in today's digital age, as X has made news more accessible, allowing anyone to post updates on ongoing events at any time, regardless of their credentials or sources. However, in some cases users fail to recognize the credibility of these posts and the bias that may be held by the poster, resulting in users becoming disinformed and feeding into the echo chamber by misinforming others. Accordingly, we aim to explore how AI bots cluster together to spread disinformation and how this ripple effect shapes the media ecosystem over time.
 
 **Section 2:**
 
@@ -18,18 +18,18 @@ This dissertation examines the presence of both malicious and benign bots on soc
 
 **Section 3:**
 
-The closest Mesa example to our phenomenon of echo chamber formation in social media is the Schelling Segregation Model, as it illustrates how individuals could become disengaged or segregated from the larger groups when exposed to a large amount of opposing content and misinformation.
+The closest Mesa example to our phenomenon of echo chamber formation in X is the Schelling Segregation Model, as it illustrates how individuals could become disengaged or segregated from the larger groups when exposed to a large amount of opposing content and misinformation.
 
 **3.1 Entities**
 
 * Human Users  
-  * Humans are the primary participants in the centralized social networking ecosystem. They actively engage in discussions and continuously communicate and make connections with others.  
+  * Humans are the primary participants in the X ecosystem. They actively engage in discussions and continuously communicate and make connections with others.  
   * Roles, Behaviors, and Goals:  
-    * They use platforms intending to gain accurate knowledge of real-world issues and news, which can sometimes result in being manipulated by bots and receiving disinformation.  
+    * They use platforms intending to gain accurate knowledge of real-world disasters, which can sometimes result in being manipulated by bots and receiving disinformation.  
     * They tend to interact with others who share the same beliefs or perspectives, sometimes spreading misinformation and unintentionally aiding the bots in their objectives.  
     * They leave or become disengaged when exposed to a large amount of opposing content, misinformation/disinformation, and conspiracy.  
 * Social Bots  
-  * Social bots in social media can be categorized into two types; content-creation bots and content-amplifier bots.   
+  * Social bots on X can be categorized into two types; content-creation bots and content-amplifier bots.   
   * Roles, Behaviors, and Goals:  
     * Content-Creation  
       * Content creation bots behave like humans and generate disinformation posts that alter information regarding specific disasters.   
@@ -40,23 +40,23 @@ The closest Mesa example to our phenomenon of echo chamber formation in social m
 In connection to the mesa models, generally, the nodes would represent views from human users on a platform. Within these nodes would be squares representing bots who infiltrate these nodes and cause a shift in the size, as they create and amplify content that shifts the beliefs of human users relating to a disaster or causes them to leave a platform upon realizing the spread of misinformation and disinformation.
 
 **3.2 Affordances**  
-Through centralized social media platforms, numerous affordances arise that create action possibilities, potentially impacting data distribution and creating echo chambers. Affordances that content amplifiers would take advantage of include upvoting, liking, and reposting posts. These often appear as little symbols or icons within posts that are easy for users to identify their use and click, such as a heart or up arrow symbol. Content creation bots would use affordances such as hashtags, being adjudicated, and eliciting emotional responses. These affordances are typically in the form of posts which often have keywords to be easily discoverable by users with high associations to the topic and words that could trigger opinions. The goal of using these affordances is to manipulate data to make it appear that these posts are reliable and popular, thus they should be spread to a larger audience to be viewed. Through affordances, bots also appear more trustworthy through their human-like interactions, further influencing users to believe their disinformation. Following the mesa examples, an analogy would be nodes that represent two views about the reasoning for a disaster, and one of the nodes outgrowing the other due to users believing the view that a bot promotes through the skewing of data from their interactions and affordances.
+Through X, numerous affordances arise that create action possibilities, potentially impacting data distribution and creating echo chambers. Affordances that content amplifiers would take advantage of include liking and reposting posts. These affordances appear as little symbols or icons within posts that are easy for users to identify their use and click, such as a heart or arrows. Content creation bots would use affordances such as hashtags, being adjudicated, and eliciting emotional responses. These affordances are in the form of posts which often have keywords to be easily discoverable by users with high associations to the topic and words that could trigger opinions. The goal of using these affordances is to manipulate data to make it appear that these posts are reliable and popular, thus they should be spread to a larger audience to be viewed. Through affordances, bots also appear more trustworthy through their human-like interactions, further influencing users to believe their disinformation. Following the mesa examples, an analogy would be nodes that represent two views about the reasoning for a disaster, and one of the nodes outgrowing the other due to users believing the view that a bot promotes through the skewing of data from their interactions and affordances.
 
 **3.3 Algorithms**  
-Social media platforms rely on various algorithms to drive user engagement. 
+X relies on various algorithms to drive user engagement. 
 
 * Recommendation Algorithms  
   * Recommendation algorithms analyze the user’s behaviour by tracking their past interactions to prioritize content aligned with the user’s preference. This simulates how agents in the Schelling Model prefer similar neighbours.   
-    * For example, if a user interacts with a conspiracy theory post, they will continue to encounter similar content, increasing their exposure to disinformation and misinformation.  
+    * For example, if a user interacts with a heavily biased post, they will continue to encounter similar content, increasing their exposure to disinformation and misinformation.  
   * Content recommendation algorithms could also prioritize AI-generated content, suggesting and reinforcing the visibility of the posts for the AI engagement to pick and interact with. By prioritizing posts created by AI, the system simulates the segregation effect by creating an AI-driven loop and minimizing content created by humans.  
 * Content Prioritization  
-  * The position of posts on social media is related to their engagement rank (likes, shares, and comments). These posts can be driven or created by AI, resulting in popular content being prioritized. Bots can exploit this by amplifying certain narratives, making them seem more dominant. This mirrors how external factors in the Schelling model accelerate segregation by influencing agent movement.
+  * The position of posts on X is related to their engagement rank (likes, shares, and comments). These posts can be driven or created by AI, resulting in popular content being prioritized. Bots can exploit this by amplifying certain narratives, making them seem more dominant. This mirrors how external factors in the Schelling model accelerate segregation by influencing agent movement.
 
 **Section 4:**
 
 ![][image1]
 
-Above is a sample output based on the Schelling Segregation Model, roughly representing our goal for the simulation. The model overall represents the environment of a centralized social networking app.
+Above is a sample output based on the Schelling Segregation Model, roughly representing our goal for the simulation. The model overall represents the environment of X.
 
 **GREEN nodes** represent neutral human users looking to learn about a disaster.  
 **PURPLE** nodes represent human users who actively engage with disinformation and misinformation related to a disaster.  
