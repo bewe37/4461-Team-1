@@ -1,81 +1,108 @@
+import random
 from mesa import Model
 from mesa.datacollection import DataCollector
-from mesa.examples.basic.schelling.agents import SchellingAgent
 from mesa.space import SingleGrid
+from agents import SocialMediaUser
 
 
 class Schelling(Model):
-    """Model class for the Schelling segregation model."""
 
     def __init__(
         self,
         height: int = 20,
         width: int = 20,
         density: float = 0.8,
-        minority_pc: float = 0.5,
-        homophily: float = 0.4,
-        radius: int = 1,
+        bot_ratio: float = 0.3,
+        bot_influence: float = 0.5,
         seed=None,
     ):
-        """Create a new Schelling model.
-
-        Args:
-            width: Width of the grid
-            height: Height of the grid
-            density: Initial chance for a cell to be populated (0-1)
-            minority_pc: Chance for an agent to be in minority class (0-1)
-            homophily: Minimum number of similar neighbors needed for happiness
-            radius: Search radius for checking neighbor similarity
-            seed: Seed for reproducibility
+        """
+        :param height: Grid height
+        :param width: Grid width
+        :param density: Probability a cell is initially occupied
+        :param bot_ratio: Fraction of agents that are bots
+        :param bot_influence: Fraction of bot neighbors needed for a human to flip belief
+        :param seed: Optional random seed
         """
         super().__init__(seed=seed)
 
-        # Model parameters
         self.height = height
         self.width = width
         self.density = density
-        self.minority_pc = minority_pc
-        self.homophily = homophily
-        self.radius = radius
+        self.bot_ratio = bot_ratio
+        self.bot_influence = bot_influence
+        self.total_clusters = 0
 
-        # Initialize grid
+        # Initialize a SingleGrid (toroidal means wrapping edges)
         self.grid = SingleGrid(width, height, torus=True)
 
-        # Track happiness
-        self.happy = 0
-
-        # Set up data collection
-        self.datacollector = DataCollector(
-            model_reporters={
-                "happy": "happy",
-                "pct_happy": lambda m: (m.happy / len(m.agents)) * 100
-                if len(m.agents) > 0
-                else 0,
-                "population": lambda m: len(m.agents),
-                "minority_pct": lambda m: (
-                    sum(1 for agent in m.agents if agent.type == 1)
-                    / len(m.agents)
-                    * 100
-                    if len(m.agents) > 0
-                    else 0
-                ),
-            },
-            agent_reporters={"agent_type": "type"},
-        )
-
-        # Create agents and place them on the grid
+        # Place agents
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
-                agent_type = 1 if self.random.random() < minority_pc else 0
-                agent = SchellingAgent(self, agent_type)
+                # Decide agent type: 1=bot, 0=human
+                agent_type = 1 if self.random.random() < self.bot_ratio else 0
+                agent = SocialMediaUser(self, agent_type)
                 self.grid.place_agent(agent, pos)
 
-        # Collect initial state
+        # Data collection
+        self.datacollector = DataCollector(
+            model_reporters={
+                "total_human_disinfo": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.agents),
+                "disinfo_clusters": lambda m: m.count_disinfo_clusters(),
+                "cumulative_clusters": lambda m: m.total_clusters,
+            },
+            agent_reporters={
+                "type": "type",
+                "belief": "belief",
+            },
+        )
         self.datacollector.collect(self)
 
     def step(self):
-        """Run one step of the model."""
-        self.happy = 0  # Reset counter of happy agents
-        self.agents.shuffle_do("step")  # Activate all agents in random order
-        self.datacollector.collect(self)  # Collect data
-        self.running = self.happy < len(self.agents)  # Continue until everyone is happy
+        # Step all agents in random order
+        self.agents.shuffle_do("step")
+        self.datacollector.collect(self)
+
+    def move_to_empty(self, agent):
+        empty_cells = []
+        for _, pos in self.grid.coord_iter():
+            if len(self.grid.get_cell_list_contents(pos)) == 0:
+                empty_cells.append(pos)
+        if empty_cells:
+            new_pos = random.choice(empty_cells)
+            self.grid.move_agent(agent, new_pos)
+
+    def count_disinfo_clusters(self):
+        """
+        Count clusters (echo chambers) of adjacent agents who have belief=1
+        using a flood-fill approach.
+        """
+        visited = set()
+        clusters = 0
+
+        for _, pos in self.grid.coord_iter():
+            cell_agents = self.grid.get_cell_list_contents(pos)
+            if not cell_agents:
+                continue
+            agent = cell_agents[0]
+            if agent.belief == 1 and pos not in visited:
+                # Start a flood fill
+                stack = [pos]
+                while stack:
+                    current_pos = stack.pop()
+                    if current_pos in visited:
+                        continue
+                    visited.add(current_pos)
+                    # Get neighbors
+                    neighbors = self.grid.get_neighbors(
+                        current_pos, moore=True, include_center=False
+                    )
+                    for neighbor in neighbors:
+                        if neighbor.belief == 1 and neighbor.pos not in visited:
+                            stack.append(neighbor.pos)
+                clusters += 1
+        
+        self.total_clusters += clusters
+        return clusters
+    
+
