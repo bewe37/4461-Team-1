@@ -35,6 +35,7 @@ class Schelling(Model):
         self.density = density
         self.bot_ratio = bot_ratio
         self.bot_influence = bot_influence
+        self.total_clusters = 0
 
         # Initialize a SingleGrid (toroidal means wrapping edges)
         self.grid = SingleGrid(width, height, torus=True)
@@ -50,8 +51,9 @@ class Schelling(Model):
         # Data collection
         self.datacollector = DataCollector(
             model_reporters={
-                "total_disinfo": lambda m: sum(a.belief == 1 for a in m.agents),
+                "total_human_disinfo": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.agents),
                 "disinfo_clusters": lambda m: m.count_disinfo_clusters(),
+                "cumulative_clusters": lambda m: m.total_clusters,
             },
             agent_reporters={
                 "type": "type",
@@ -107,4 +109,8 @@ class Schelling(Model):
                         if neighbor.belief == 1 and neighbor.pos not in visited:
                             stack.append(neighbor.pos)
                 clusters += 1
+        
+        self.total_clusters += clusters
         return clusters
+    
+

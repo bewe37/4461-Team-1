@@ -15,33 +15,35 @@ class SocialMediaUser(Agent):
         self.belief = 1 if agent_type == 1 else 0
 
     def step(self):
-        """
-        Example logic:
-          - If agent is a bot, move if fraction of neighbors who are also bots < 0.5.
-          - If agent is a human, become disinformed if any bot neighbors exist.
-        """
+        
         # Get neighbors from the grid
         neighbors = self.model.grid.get_neighbors(
             self.pos, moore=True, include_center=False
         )
         if not neighbors:
             return
-
         if self.type == 1:
-            # -----------------
-            # BOT movement
-            # -----------------
+            # Calculate fraction of neighbors who are bots
             bot_neighbors = sum(1 for n in neighbors if n.type == 1)
             fraction_bots = bot_neighbors / len(neighbors)
-            # If fewer than 50% neighbors are bots, move
-            if fraction_bots < 0.5:
-                # NOTE: move_to_empty must be defined in your model!
+
+            # If fewer than 50% of neighbors are bots, move
+            if fraction_bots < 0.6:
                 self.model.move_to_empty(self)
+
         else:
-            # -----------------
-            # HUMAN logic
-            # -----------------
+            # Count how many neighbors are bots
             bot_neighbors = sum(1 for n in neighbors if n.type == 1)
+
             # If there's at least one bot neighbor, adopt disinformation
             if bot_neighbors > 0:
                 self.belief = 1
+
+            # Otherwise, if there's a mix of beliefs, there's a 30% chance to switch
+            else:
+                same_belief = sum(1 for n in neighbors if n.belief == self.belief)
+                diff_belief = len(neighbors) - same_belief
+                if diff_belief > 0 and random.random() < 0.3:
+                    self.belief = 0 if self.belief == 1 else 1
+
+

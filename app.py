@@ -16,13 +16,16 @@ def get_disinfo_stats(model):
     """
     Display the total number of agents who are disinformed.
     """
-    total_disinfo = sum(a.belief == 1 for a in model.agents)
-    return solara.Markdown(f"**Total Disinfo Agents:** {total_disinfo}")
+    total_human_disinfo = sum(a.belief == 1 and a.type == 0 for a in model.agents)
+    total_clusters = model.total_clusters
+    return solara.Markdown(
+        f"**Total Disinfo Humanss:** {total_human_disinfo}  \n"
+        f"**Total Disinfo Clusters:** {total_clusters}"
+    )
 
 
 def agent_portrayal(agent):
     """
-     Set colors for agents:
       - Bots (user_type==1) are blue.
       - Humans (user_type==0) are green if factual (belief==0)
         and orange if disinformed (belief==1).
@@ -52,8 +55,9 @@ model_params = {
 # Create a model instance
 model1 = Schelling()
 
-# Create a plot component showing total disinfo over time (from DataCollector)
-DisinfoPlot = make_plot_component({"total_disinfo": "tab:red"})
+# Create a plot component showing total disinfo and cumulative clusters over time (from DataCollector)
+DisinfoPlot = make_plot_component({"total_human_disinfo": "tab:red"})
+ClustersPlot = make_plot_component({"cumulative_clusters": "tab:blue"})  
 
 # Build the SolaraViz page
 page = SolaraViz(
@@ -61,7 +65,8 @@ page = SolaraViz(
     components=[
         make_space_component(agent_portrayal),
         DisinfoPlot,
-        get_disinfo_stats,
+        ClustersPlot,  
+        get_disinfo_stats,  
     ],
     model_params=model_params,
 )
