@@ -19,7 +19,7 @@ def get_disinfo_stats(model):
     total_human_disinfo = sum(a.belief == 1 and a.type == 0 for a in model.agents)
     total_clusters = model.total_clusters
     return solara.Markdown(
-        f"**Total Disinfo Humanss:** {total_human_disinfo}  \n"
+        f"**Total Disinfo Humans:** {total_human_disinfo}  \n"
         f"**Total Disinfo Clusters:** {total_clusters}"
     )
 
