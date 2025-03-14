@@ -48,17 +48,14 @@ class Schelling(Model):
         # Initialize a SingleGrid 
         self.grid = SingleGrid(width, height, torus=True)
 
-<<<<<<< HEAD
         # Initialize random activation scheduler
         self.schedule = RandomActivation(self)
 
         # Place agents and add them to the scheduler
-=======
         # Initialize Random activation scheduler
         self.schedule = RandomActivation(self)
 
         # Place agents and add them to the scheduler
->>>>>>> b4546df73f29558b9eaddb889a3c839bd46451a0
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
                 # Decide agent type: 1=bot, 0=human
