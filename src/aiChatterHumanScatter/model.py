@@ -4,9 +4,22 @@ from mesa.datacollection import DataCollector
 from mesa.space import SingleGrid
 from agents import SocialMediaUser
 
+# Custom RandomActivation Scheduler because we can't import mesa.time
+class RandomActivation:
+    def __init__(self, model):
+        self.model = model
+        self.agents = []
+    
+    def add(self, agent):
+        self.agents.append(agent)
+    
+    def step(self):
+        random.shuffle(self.agents)
+        for agent in self.agents:
+            agent.step()
 
 class Schelling(Model):
-
+   
     def __init__(
         self,
         height: int = 20,
@@ -33,21 +46,25 @@ class Schelling(Model):
         self.bot_influence = bot_influence
         self.total_clusters = 0
 
-        # Initialize a SingleGrid (toroidal means wrapping edges)
+        # Initialize a SingleGrid 
         self.grid = SingleGrid(width, height, torus=True)
 
-        # Place agents
+        # Initialize Random activation scheduler
+        self.schedule = RandomActivation(self)
+
+        # Place agents and add them to the scheduler
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
                 # Decide agent type: 1=bot, 0=human
                 agent_type = 1 if self.random.random() < self.bot_ratio else 0
                 agent = SocialMediaUser(self, agent_type)
                 self.grid.place_agent(agent, pos)
+                self.schedule.add(agent)
 
         # Data collection
         self.datacollector = DataCollector(
             model_reporters={
-                "total_human_disinfo": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.agents),
+                "total_human_disinfo": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.schedule.agents),
                 "disinfo_clusters": lambda m: m.count_disinfo_clusters(),
                 "cumulative_clusters": lambda m: m.total_clusters,
             },
@@ -59,8 +76,8 @@ class Schelling(Model):
         self.datacollector.collect(self)
 
     def step(self):
-        # Step all agents in random order
-        self.agents.shuffle_do("step")
+        # Activate all agents in random order using the custom scheduler
+        self.schedule.step()
         self.datacollector.collect(self)
 
     def move_to_empty(self, agent):
@@ -104,5 +121,3 @@ class Schelling(Model):
         
         self.total_clusters += clusters
         return clusters
-    
-
