@@ -19,6 +19,7 @@ class RandomActivation:
             agent.step()
 
 class Schelling(Model):
+
     def __init__(
         self,
         height: int = 20,
@@ -27,6 +28,7 @@ class Schelling(Model):
         bot_ratio: float = 0.3,
         bot_influence: float = 0.5,
         seed=None,
+        homophily: float = 0.5,
     ):
         """
         :param height: Grid height
@@ -44,23 +46,21 @@ class Schelling(Model):
         self.bot_ratio = bot_ratio
         self.bot_influence = bot_influence
         self.total_clusters = 0
+        self.happy = 0
+        self.homophily = homophily
 
-        # Initialize a SingleGrid 
+
+        # Initialize a SingleGrid (toroidal means wrapping edges)
         self.grid = SingleGrid(width, height, torus=True)
 
-        # Initialize random activation scheduler
-        self.schedule = RandomActivation(self)
-
-        # Place agents and add them to the scheduler
-        # Initialize Random activation scheduler
+        # Initialize our custom random activation scheduler
         self.schedule = RandomActivation(self)
 
         # Place agents and add them to the scheduler
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
-                # Decide agent type: 1=bot, 0=human
                 agent_type = 1 if self.random.random() < self.bot_ratio else 0
-                agent = SocialMediaUser(self, agent_type)
+                agent = SocialMediaUser(self, agent_type=agent_type)
                 self.grid.place_agent(agent, pos)
                 self.schedule.add(agent)
 
@@ -70,6 +70,7 @@ class Schelling(Model):
                 "total_human_disinfo": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.schedule.agents),
                 "disinfo_clusters": lambda m: m.count_disinfo_clusters(),
                 "cumulative_clusters": lambda m: m.total_clusters,
+                "happy_agents": lambda m: m.happy,
             },
             agent_reporters={
                 "type": "type",
@@ -80,14 +81,12 @@ class Schelling(Model):
 
     def step(self):
         # Activate all agents in random order using the custom scheduler
+        self.happy = 0
         self.schedule.step()
         self.datacollector.collect(self)
 
     def move_to_empty(self, agent):
-        empty_cells = []
-        for _, pos in self.grid.coord_iter():
-            if len(self.grid.get_cell_list_contents(pos)) == 0:
-                empty_cells.append(pos)
+        empty_cells = [pos for pos in self.grid.empties]
         if empty_cells:
             new_pos = random.choice(empty_cells)
             self.grid.move_agent(agent, new_pos)

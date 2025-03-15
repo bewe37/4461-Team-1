@@ -20,7 +20,9 @@ def get_disinfo_stats(model):
     total_clusters = model.total_clusters
     return solara.Markdown(
         f"**Total Disinfo Humans:** {total_human_disinfo}  \n"
-        f"**Total Disinfo Clusters:** {total_clusters}"
+        f"**Total Disinfo Clusters:** {total_clusters} \n"
+        f"**Happy Agents:** {model.happy}"
+
     )
 
 
@@ -48,6 +50,7 @@ model_params = {
     "density": Slider("Agent density", 0.8, 0.1, 1.0, 0.1),
     "bot_ratio": Slider("Bot ratio", 0.3, 0.0, 1.0, 0.05),
     "bot_influence": Slider("Bot influence", 0.5, 0.0, 1.0, 0.05),
+    "homophily": Slider("Homophily Threshold", value=0.5, min=0.0, max=1.0, step=0.05),
     "width": 20,
     "height": 20,
 }
@@ -58,6 +61,8 @@ model1 = Schelling()
 # Create a plot component showing total disinfo and cumulative clusters over time (from DataCollector)
 DisinfoPlot = make_plot_component({"total_human_disinfo": "tab:red"})
 ClustersPlot = make_plot_component({"cumulative_clusters": "tab:blue"})  
+HappyPlot = make_plot_component({"happy_agents": "tab:green"})
+
 
 # Build the SolaraViz page
 page = SolaraViz(
@@ -65,7 +70,8 @@ page = SolaraViz(
     components=[
         make_space_component(agent_portrayal),
         DisinfoPlot,
-        ClustersPlot,  
+        ClustersPlot,
+        HappyPlot,  
         get_disinfo_stats,  
     ],
     model_params=model_params,
