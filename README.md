@@ -1,6 +1,8 @@
 # §A. Overview of the current implementation state.
 TODO
 
+---------------------------------------------------------------
+
 # §B. How to run the simulation (installation steps, commands).
 Ensure that you have the latest version of python installed
 https://www.python.org/downloads/
@@ -17,6 +19,7 @@ Navigate to the src file where the code is located:
  Once on the directory, run the following command:
     solara run app.py
 
+---------------------------------------------------------------
+
 # §C. Limitations and planned improvements for the next phase.
 TODO
----------------------------------------------------------------
