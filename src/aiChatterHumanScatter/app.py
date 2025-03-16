@@ -35,9 +35,11 @@ def agent_portrayal(agent):
 
     if agent.type == 1:
         color = "tab:blue"
+        marker = "s"
     else:
         color = "tab:green" if agent.belief == 0 else "tab:orange"
-    return {"color": color}
+        marker = "o"
+    return {"color": color, "marker": marker}
 
 
 # Define model parameters for the Solara interface
@@ -48,7 +50,7 @@ model_params = {
         "label": "Random Seed",
     },
     "density": Slider("Agent density", 0.8, 0.1, 1.0, 0.1),
-    "bot_ratio": Slider("Bot ratio", 0.3, 0.0, 1.0, 0.05),
+    "bot_ratio": Slider("Bot ratio", 0.1, 0.0, 1.0, 0.05),
     "bot_influence": Slider("Bot influence", 0.5, 0.0, 1.0, 0.05),
     "homophily": Slider("Homophily Threshold", value=0.5, min=0.0, max=1.0, step=0.05),
     "width": 20,

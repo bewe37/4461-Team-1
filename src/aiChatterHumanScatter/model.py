@@ -25,7 +25,7 @@ class Schelling(Model):
         height: int = 20,
         width: int = 20,
         density: float = 0.8,
-        bot_ratio: float = 0.3,
+        bot_ratio: float = 0.1,
         bot_influence: float = 0.5,
         seed=None,
         homophily: float = 0.5,
