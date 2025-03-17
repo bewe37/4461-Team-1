@@ -28,13 +28,13 @@ def get_disinfo_stats(model):
 
 def agent_portrayal(agent):
     """
-      - Bots (user_type==1) are blue.
+      - Bots (user_type==1) are gray.
       - Humans (user_type==0) are green if factual (belief==0)
         and orange if disinformed (belief==1).
     """
 
     if agent.type == 1:
-        color = "tab:blue"
+        color = "gray"
         marker = "s"
     else:
         color = "tab:green" if agent.belief == 0 else "tab:orange"

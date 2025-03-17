@@ -102,7 +102,7 @@ class Schelling(Model):
         if empty_cells:
             new_pos = random.choice(empty_cells)
 
-            # Prevents agents from moving next to each other
+            # Prevents bots from moving next to each other
             if (agent.type == self.bot_type):
                 for new_pos in empty_cells:
                     neighbors = self.grid.get_neighborhood(new_pos, moore=True, include_center=False)

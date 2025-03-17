@@ -25,7 +25,6 @@ class SocialMediaUser(Agent):
         self.step_counter = -1 # Counter to track steps
 
     def step(self):
-   
         neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False)
         if not neighbors:
             return
@@ -38,16 +37,14 @@ class SocialMediaUser(Agent):
 
         else:
             # HUMAN behavior
-            bot_neighbors = sum(1 for n in neighbors if n.type == self.bot_type)
-            # If there's at least one bot neighbor, chance humans belief changes.
-            if bot_neighbors > 0 and random.random() < self.model.bot_influence:
-                if self.belief == self.informed_type:
-                    opposite_type = self.disinformed_type
-                else:
-                    opposite_type = self.informed_type
+            if self.belief == self.informed_type:
+                opposite_type = self.disinformed_type
+            else:
+                opposite_type = self.informed_type
 
-                if any(n.type == self.bot_type and n.belief == opposite_type for n in neighbors):
-                    self.belief = opposite_type
+            # If there's at least one bot neighbor, chance humans belief changes.
+            if any(n.type == self.bot_type and n.belief == opposite_type for n in neighbors) and random.random() < self.model.bot_influence:
+                self.belief = opposite_type
 
             same_belief_neighbors = sum(1 for n in neighbors if n.belief == self.belief)
             similarity_fraction = same_belief_neighbors / len(neighbors)
