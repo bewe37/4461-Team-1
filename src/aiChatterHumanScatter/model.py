@@ -34,9 +34,10 @@ class Schelling(Model):
         :param height: Grid height
         :param width: Grid width
         :param density: Probability a cell is initially occupied
-        :param bot_ratio: Fraction of agents that are bots
+        :param bot_ratio: Chance that an agent will be a bot
         :param bot_influence: Fraction of bot neighbors needed for a human to flip belief
         :param seed: Optional random seed
+        :param homophily: How happy an agent is
         """
         super().__init__(seed=seed)
 
@@ -60,6 +61,15 @@ class Schelling(Model):
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
                 agent_type = 1 if self.random.random() < self.bot_ratio else 0
+
+                # Prevents bots from spawning next to one another
+                if agent_type == 1:
+                    neighbors = self.grid.get_neighborhood(pos, moore=True, include_center=False)
+                    neighbors_agents = self.grid.get_cell_list_contents(neighbors)
+
+                    if any(neighbor_agent.type == 1 for neighbor_agent in neighbors_agents):
+                        continue
+
                 agent = SocialMediaUser(self, agent_type=agent_type)
                 self.grid.place_agent(agent, pos)
                 self.schedule.add(agent)
