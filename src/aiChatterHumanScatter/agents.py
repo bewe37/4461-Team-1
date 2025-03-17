@@ -7,19 +7,21 @@ class SocialMediaUser(Agent):
     type = 1 => disinformed/disinformational, type = 0 => informed/informational.
     """
 
+    human_type = 0
+    bot_type = 1
+    informed_type = 0
+    disinformed_type = 1
+
     def __init__(self, model, agent_type: int):
         super().__init__(model)
         self.type = agent_type
         # 30% chance for a bot to be informational
-        # Humans start informed (belief=0).
-        if agent_type == 1:
-            self.belief = 0 if random.random() < 0.3 else 1
-            self.activated = False 
+        # Humans start informed
+        if agent_type == self.bot_type:
+            self.belief = self.informed_type if random.random() < 0.3 else self.disinformed_type
         else: 
-            self.belief = 0
-            self.activated = True
+            self.belief = self.informed_type
 
-        self.activated = False if agent_type == 1 else True
         self.step_counter = -1 # Counter to track steps
 
     def step(self):
@@ -28,30 +30,24 @@ class SocialMediaUser(Agent):
         if not neighbors:
             return
 
-        if self.type == 1:
+        if self.type == self.bot_type:
             # BOT behavior
-            if not self.activated:
-                # Activate only if a neighbor human becomes misinformed
-                if any(n.type == 0 and n.belief == 1 for n in neighbors):
-                    self.activated = True
-            else:
-                bot_neighbors = sum(1 for n in neighbors if n.type == 1)
-                fraction_bots = bot_neighbors / len(neighbors)
-
-                # If fewer than 50% of neighbors are bots, move
-                if self.step_counter % 2 == 0:
-                    if fraction_bots < 0.5:
-                        self.model.move_to_empty(self)
+            # Can move once human neighbor shares belief
+            if any(n.type == self.human_type and n.belief == self.belief for n in neighbors) and self.step_counter % 2 == 0:
+                self.model.move_to_empty(self)
 
         else:
             # HUMAN behavior
-            bot_neighbors = sum(1 for n in neighbors if n.type == 1)
-            # If there's at least one bot neighbor, 30% chance humans belief changes.
-            if bot_neighbors > 0 and random.random() < 0.3:
-                if self.belief == 1:
-                    self.belief = 0
+            bot_neighbors = sum(1 for n in neighbors if n.type == self.bot_type)
+            # If there's at least one bot neighbor, chance humans belief changes.
+            if bot_neighbors > 0 and random.random() < self.model.bot_influence:
+                if self.belief == self.informed_type:
+                    opposite_type = self.disinformed_type
                 else:
-                    self.belief = 1
+                    opposite_type = self.informed_type
+
+                if any(n.type == self.bot_type and n.belief == opposite_type for n in neighbors):
+                    self.belief = opposite_type
 
             same_belief_neighbors = sum(1 for n in neighbors if n.belief == self.belief)
             similarity_fraction = same_belief_neighbors / len(neighbors)
