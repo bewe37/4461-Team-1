@@ -79,7 +79,8 @@ class Schelling(Model):
         # Data collection
         self.datacollector = DataCollector(
             model_reporters={
-                "total_human_disinfo": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.schedule.agents),
+                "total_human_disinformed": lambda m: sum(a.belief == 1 and a.type == 0 for a in m.schedule.agents),
+                "total_human_informed": lambda m: sum(a.belief == 0 and a.type == 0 for a in m.schedule.agents),
                 "disinfo_clusters": lambda m: m.count_disinfo_clusters(),
                 "cumulative_clusters": lambda m: m.total_clusters,
                 "happy_agents": lambda m: m.happy,

@@ -16,10 +16,12 @@ def get_disinfo_stats(model):
     """
     Display the total number of agents who are disinformed.
     """
-    total_human_disinfo = sum(a.belief == 1 and a.type == 0 for a in model.agents)
+    total_human_disinformed = sum(a.belief == 1 and a.type == 0 for a in model.agents)
+    total_human_informed = sum(a.belief == 0 and a.type == 0 for a in model.agents)
     total_clusters = model.total_clusters
     return solara.Markdown(
-        f"**Total Disinfo Humans:** {total_human_disinfo}  \n"
+        f"**Total Disinformed Humans:** {total_human_disinformed}  \n"
+        f"**Total Informed Humans:** {total_human_informed}  \n"
         f"**Total Disinfo Clusters:** {total_clusters} \n"
         f"**Happy Agents:** {model.happy}"
 
@@ -61,7 +63,8 @@ model_params = {
 model1 = Schelling()
 
 # Create a plot component showing total disinfo and cumulative clusters over time (from DataCollector)
-DisinfoPlot = make_plot_component({"total_human_disinfo": "tab:red"})
+DisinfoPlot = make_plot_component({"total_human_disinformed": "tab:red"})
+InfoPlot = make_plot_component({"total_human_informed": "tab:red"})
 ClustersPlot = make_plot_component({"cumulative_clusters": "tab:blue"})  
 HappyPlot = make_plot_component({"happy_agents": "tab:green"})
 
@@ -72,6 +75,7 @@ page = SolaraViz(
     components=[
         make_space_component(agent_portrayal),
         DisinfoPlot,
+        InfoPlot,
         ClustersPlot,
         HappyPlot,  
         get_disinfo_stats,  
