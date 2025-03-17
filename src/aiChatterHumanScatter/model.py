@@ -20,6 +20,9 @@ class RandomActivation:
 
 class Schelling(Model):
 
+    human_type = 0
+    bot_type = 1
+
     def __init__(
         self,
         height: int = 20,
@@ -33,9 +36,9 @@ class Schelling(Model):
         """
         :param height: Grid height
         :param width: Grid width
-        :param density: Probability a cell is initially occupied
-        :param bot_ratio: Chance that an agent will be a bot
-        :param bot_influence: Fraction of bot neighbors needed for a human to flip belief
+        :param density: Probability of a cell being initially occupied
+        :param bot_ratio: Probability that an agent will be a bot
+        :param bot_influence: Probability that a bot will change a humans belief
         :param seed: Optional random seed
         :param homophily: How happy an agent is
         """
@@ -50,7 +53,6 @@ class Schelling(Model):
         self.happy = 0
         self.homophily = homophily
 
-
         # Initialize a SingleGrid (toroidal means wrapping edges)
         self.grid = SingleGrid(width, height, torus=True)
 
@@ -60,14 +62,14 @@ class Schelling(Model):
         # Place agents and add them to the scheduler
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
-                agent_type = 1 if self.random.random() < self.bot_ratio else 0
+                agent_type = self.bot_type if self.random.random() < self.bot_ratio else self.human_type
 
                 # Prevents bots from spawning next to one another
-                if agent_type == 1:
+                if agent_type == self.bot_type:
                     neighbors = self.grid.get_neighborhood(pos, moore=True, include_center=False)
                     neighbors_agents = self.grid.get_cell_list_contents(neighbors)
 
-                    if any(neighbor_agent.type == 1 for neighbor_agent in neighbors_agents):
+                    if any(neighbor_agent.type == self.bot_type for neighbor_agent in neighbors_agents):
                         continue
 
                 agent = SocialMediaUser(self, agent_type=agent_type)
@@ -99,7 +101,19 @@ class Schelling(Model):
         empty_cells = [pos for pos in self.grid.empties]
         if empty_cells:
             new_pos = random.choice(empty_cells)
-            self.grid.move_agent(agent, new_pos)
+
+            # Prevents agents from moving next to each other
+            if (agent.type == self.bot_type):
+                for new_pos in empty_cells:
+                    neighbors = self.grid.get_neighborhood(new_pos, moore=True, include_center=False)
+                    neighbor_agents = self.grid.get_cell_list_contents(neighbors)
+
+                    if not any(agent.type == self.bot_type for agent in neighbor_agents):
+                        self.grid.move_agent(agent, new_pos)
+                        return 
+
+            else:
+                self.grid.move_agent(agent, new_pos)
 
     def count_disinfo_clusters(self):
         """
