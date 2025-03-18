@@ -30,7 +30,7 @@ class Schelling(Model):
         width: int = 20,
         density: float = 0.8,
         bot_ratio: float = 0.1,
-        bot_influence: float = 0.5,
+        bot_influence: float = 0.3,
         seed=None,
         homophily: float = 0.5,
     ):

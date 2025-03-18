@@ -53,7 +53,7 @@ model_params = {
     },
     "density": Slider("Probability of a cell being occupied", 0.8, 0.1, 1.0, 0.1),
     "bot_ratio": Slider("Probabiliy of an agent being a bot", 0.1, 0.0, 1.0, 0.05),
-    "bot_influence": Slider("Bot influence", 0.5, 0.0, 1.0, 0.05),
+    "bot_influence": Slider("Bot influence", 0.3, 0.0, 1.0, 0.05),
     "homophily": Slider("Homophily Threshold", value=0.5, min=0.0, max=1.0, step=0.05),
     "width": 20,
     "height": 20,
