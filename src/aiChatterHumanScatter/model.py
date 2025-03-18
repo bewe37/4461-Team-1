@@ -70,7 +70,7 @@ class Schelling(Model):
                     neighbors_agents = self.grid.get_cell_list_contents(neighbors)
 
                     if any(neighbor_agent.type == self.bot_type for neighbor_agent in neighbors_agents):
-                        continue
+                        agent_type = self.human_type
 
                 agent = SocialMediaUser(self, agent_type=agent_type)
                 self.grid.place_agent(agent, pos)
