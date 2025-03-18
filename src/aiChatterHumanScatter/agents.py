@@ -46,6 +46,11 @@ class SocialMediaUser(Agent):
             if any(n.type == self.bot_type and n.belief == opposite_type for n in neighbors) and random.random() < self.model.bot_influence:
                 self.belief = opposite_type
 
+                if self.belief == self.disinformed_type:
+                    self.model.informed_humans_converted += 1
+                else:
+                    self.model.disinformed_humans_converted += 1
+
             same_belief_neighbors = sum(1 for n in neighbors if n.belief == self.belief)
             similarity_fraction = same_belief_neighbors / len(neighbors)
 

@@ -3,6 +3,7 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import SingleGrid
 from agents import SocialMediaUser
+from logger import logger
 
 # Custom RandomActivation Scheduler because we can't import mesa.time
 class RandomActivation:
@@ -53,6 +54,9 @@ class Schelling(Model):
         self.happy = 0
         self.homophily = homophily
 
+        self.disinformed_humans_converted = 0
+        self.informed_humans_converted = 0
+
         # Initialize a SingleGrid (toroidal means wrapping edges)
         self.grid = SingleGrid(width, height, torus=True)
 
@@ -97,6 +101,10 @@ class Schelling(Model):
         self.happy = 0
         self.schedule.step()
         self.datacollector.collect(self)
+        logger.info(f"{self.disinformed_humans_converted} humans converted to informed")
+        logger.info(f"{self.informed_humans_converted} humans converted to disinformed")
+        self.disinformed_humans_converted = 0
+        self.informed_humans_converted = 0
 
     def move_to_empty(self, agent):
         empty_cells = [pos for pos in self.grid.empties]
