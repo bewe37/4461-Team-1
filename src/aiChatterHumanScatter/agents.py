@@ -1,12 +1,12 @@
-from mesa import Agent
 import random
+from mesa import Agent
 
 class SocialMediaUser(Agent):
     """
-    A Schelling-style agent with a 'belief' attribute.
-    type = 1 => disinformed/disinformational, type = 0 => informed/informational.
+    Schelling-style agent:
+      type=1 ⇒ bot, type=0 ⇒ human
+      belief=0 ⇒ factual (informed), belief=1 ⇒ misinformed (disinformed)
     """
-
     human_type = 0
     bot_type = 1
     informed_type = 0
@@ -15,28 +15,40 @@ class SocialMediaUser(Agent):
     def __init__(self, model, agent_type: int):
         super().__init__(model)
         self.type = agent_type
-        # 30% chance for a bot to be informational
-        # Humans start informed
+        # Bots start misinformed 70% of the time, factual 30%
         if agent_type == self.bot_type:
             self.belief = self.informed_type if random.random() < 0.3 else self.disinformed_type
-        else: 
-            self.belief = self.informed_type
-
-        self.step_counter = -1 # Counter to track steps
+            self.activated = False
+        else:
+            self.belief = self.disinformed_type if random.random() < 0.2 else self.informed_type
+            self.activated = True
+        self.step_counter = 0
 
     def step(self):
         neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False)
         if not neighbors:
+            self.step_counter += 1
             return
 
         if self.type == self.bot_type:
-            # BOT behavior
-            # Can move once human neighbor shares belief
-            if any(n.type == self.human_type and n.belief == self.belief for n in neighbors) and self.step_counter % 2 == 0:
-                self.model.move_to_empty(self)
+            # Bots act only during disasters
+        
+            if self.model.in_disaster:
+                if any(n.type == self.human_type and n.belief == self.belief for n in neighbors) and self.step_counter % 2 == 0:
+                    self.model.move_to_empty(self)
 
         else:
-            # HUMAN behavior
+            # Human-to-human spread disinformation to other humans before disaster
+            if not self.model.in_disaster:
+                for neighbor in neighbors:
+                    if neighbor.type == self.human_type and neighbor.belief != self.belief and random.random() < 0.15:
+                        neighbor.belief = self.belief
+                        if self.belief == self.disinformed_type:
+                            self.model.informed_humans_converted += 1
+                        else:
+                            self.model.disinformed_humans_converted += 1
+
+            # Adoption from bots if exposed
             if self.belief == self.informed_type:
                 opposite_type = self.disinformed_type
             else:
@@ -51,15 +63,15 @@ class SocialMediaUser(Agent):
                 else:
                     self.model.disinformed_humans_converted += 1
 
-            same_belief_neighbors = sum(1 for n in neighbors if n.belief == self.belief)
-            similarity_fraction = same_belief_neighbors / len(neighbors)
-
-            if similarity_fraction < self.model.homophily:
-                # Chance to move if unhappy
-                if self.step_counter % 2 == 0:
-                    self.model.move_to_empty(self)
+            # Movement & happiness: more sporadic during disaster
+            same = sum(1 for n in neighbors if n.belief == self.belief)
+            frac = same / len(neighbors)
+            move_prob = 0.5 if self.model.in_disaster else 0.1
+            if frac < self.model.homophily and self.step_counter % 2 == 0:
+                self.model.move_to_empty(self)
             else:
-                # Agent is happy, increment the model's happy counter
                 self.model.happy += 1
+                if random.random() < move_prob:
+                    self.model.move_to_empty(self)
 
         self.step_counter += 1

@@ -66,17 +66,7 @@ class Schelling(Model):
         # Place agents and add them to the scheduler
         for _, pos in self.grid.coord_iter():
             if self.random.random() < self.density:
-                agent_type = self.bot_type if self.random.random() < self.bot_ratio else self.human_type
-
-                # Prevents bots from spawning next to one another
-                if agent_type == self.bot_type:
-                    neighbors = self.grid.get_neighborhood(pos, moore=True, include_center=False)
-                    neighbors_agents = self.grid.get_cell_list_contents(neighbors)
-
-                    if any(neighbor_agent.type == self.bot_type for neighbor_agent in neighbors_agents):
-                        agent_type = self.human_type
-
-                agent = SocialMediaUser(self, agent_type=agent_type)
+                agent = SocialMediaUser(self, agent_type=self.human_type)
                 self.grid.place_agent(agent, pos)
                 self.schedule.add(agent)
 
@@ -88,17 +78,37 @@ class Schelling(Model):
                 "disinfo_clusters": lambda m: m.count_disinfo_clusters(),
                 "cumulative_clusters": lambda m: m.total_clusters,
                 "happy_agents": lambda m: m.happy,
+                "disaster": lambda m: m.in_disaster,
             },
             agent_reporters={
                 "type": "type",
                 "belief": "belief",
             },
         )
+         # Disaster timing setup
+        self.schedule_steps = 0
+        self.disaster_start_step = random.randint(10, 30)
+        self.disaster_duration = 20
+        self.in_disaster = False
+
         self.datacollector.collect(self)
 
     def step(self):
         # Activate all agents in random order using the custom scheduler
         self.happy = 0
+        self.schedule_steps += 1
+
+         # Disaster trigger logic
+        if self.schedule_steps == self.disaster_start_step:
+            self.in_disaster = True
+            self.spawn_bots_during_disaster()
+
+        if self.in_disaster and self.schedule_steps >= self.disaster_start_step + self.disaster_duration:
+            self.remove_all_bots()
+            self.in_disaster = False
+            self.schedule_steps = 0
+            self.disaster_start = random.randint(10, 30)
+            
         self.schedule.step()
         self.datacollector.collect(self)
         logger.info(f"{self.disinformed_humans_converted} humans converted to informed")
@@ -106,23 +116,49 @@ class Schelling(Model):
         self.disinformed_humans_converted = 0
         self.informed_humans_converted = 0
 
+    def spawn_bots_during_disaster(self):
+        empty_cells = list (self.grid.empties)
+        random.shuffle(empty_cells)
+        bots_to_place = int(len(empty_cells) * self.bot_ratio)
+        placed = 0
+        for pos in empty_cells:
+            if placed >= bots_to_place:
+                break
+            neighbors = self.grid.get_neighbors(pos, moore=True, include_center=False)
+            if not any(n.type == self.bot_type for n in neighbors):
+                bot = SocialMediaUser(self, agent_type=self.bot_type)
+                bot.activated = True
+                self.grid.place_agent(bot, pos)
+                self.schedule.add(bot)
+                placed += 1
+
+
     def move_to_empty(self, agent):
-        empty_cells = [pos for pos in self.grid.empties]
-        if empty_cells:
-            new_pos = random.choice(empty_cells)
+        empty_cells = list(self.grid.empties)
+        random.shuffle(empty_cells)
+        if not empty_cells:
+            return
 
-            # Prevents bots from moving next to each other
-            if (agent.type == self.bot_type):
-                for new_pos in empty_cells:
-                    neighbors = self.grid.get_neighborhood(new_pos, moore=True, include_center=False)
-                    neighbor_agents = self.grid.get_cell_list_contents(neighbors)
+    # During disaster, let bots move into any empty spot
+        if agent.type == self.bot_type and self.in_disaster:
+            self.grid.move_agent(agent, empty_cells[0])
+            return
 
-                    if not any(agent.type == self.bot_type for agent in neighbor_agents):
-                        self.grid.move_agent(agent, new_pos)
-                        return 
+    # Otherwise preserve “no adjacent bots” rule
+        if agent.type == self.bot_type:
+            for pos in empty_cells:
+                if not any(n.type == self.bot_type for n in self.grid.get_neighbors(pos, moore=True, include_center=False)):
+                    self.grid.move_agent(agent, pos)
+                    return
 
-            else:
-                self.grid.move_agent(agent, new_pos)
+    # Humans move normally
+        self.grid.move_agent(agent, empty_cells[0])
+
+    def remove_all_bots(self):
+        for agent in list(self.schedule.agents):
+            if agent.type == self.bot_type:
+                self.grid.remove_agent(agent)
+                self.schedule.agents.remove(agent)
 
     def count_disinfo_clusters(self):
         """
