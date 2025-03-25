@@ -125,7 +125,7 @@ class Schelling(Model):
             if placed >= bots_to_place:
                 break
             neighbors = self.grid.get_neighbors(pos, moore=True, include_center=False)
-            if not any(n.type == self.bot_type for n in neighbors):
+            if all(n.type != self.bot_type for n in neighbors):
                 bot = SocialMediaUser(self, agent_type=self.bot_type)
                 bot.activated = True
                 self.grid.place_agent(bot, pos)
@@ -134,25 +134,22 @@ class Schelling(Model):
 
 
     def move_to_empty(self, agent):
-        empty_cells = list(self.grid.empties)
-        random.shuffle(empty_cells)
-        if not empty_cells:
-            return
-
-    # During disaster, let bots move into any empty spot
-        if agent.type == self.bot_type and self.in_disaster:
-            self.grid.move_agent(agent, empty_cells[0])
-            return
-
-    # Otherwise preserve “no adjacent bots” rule
-        if agent.type == self.bot_type:
-            for pos in empty_cells:
-                if not any(n.type == self.bot_type for n in self.grid.get_neighbors(pos, moore=True, include_center=False)):
-                    self.grid.move_agent(agent, pos)
-                    return
-
-    # Humans move normally
-        self.grid.move_agent(agent, empty_cells[0])
+        empty_cells = [pos for pos in self.grid.empties]
+        if empty_cells:
+             new_pos = random.choice(empty_cells)
+ 
+             # Prevents bots from moving next to each other
+             if (agent.type == self.bot_type and self.in_disaster):
+                 for new_pos in empty_cells:
+                     neighbors = self.grid.get_neighborhood(new_pos, moore=True, include_center=False)
+                     neighbor_agents = self.grid.get_cell_list_contents(neighbors)
+ 
+                     if not any(agent.type == self.bot_type for agent in neighbor_agents):
+                         self.grid.move_agent(agent, new_pos)
+                         return 
+ 
+             else:
+                 self.grid.move_agent(agent, new_pos)
 
     def remove_all_bots(self):
         for agent in list(self.schedule.agents):
