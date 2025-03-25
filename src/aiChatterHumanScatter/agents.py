@@ -32,7 +32,6 @@ class SocialMediaUser(Agent):
 
         if self.type == self.bot_type:
             # Bots act only during disasters
-        
             if self.model.in_disaster:
                 if any(n.type == self.human_type and n.belief == self.belief for n in neighbors) and self.step_counter % 2 == 0:
                     self.model.move_to_empty(self)
@@ -63,15 +62,14 @@ class SocialMediaUser(Agent):
                 else:
                     self.model.disinformed_humans_converted += 1
 
-            # Movement & happiness: more sporadic during disaster
-            same = sum(1 for n in neighbors if n.belief == self.belief)
-            frac = same / len(neighbors)
-            move_prob = 0.5 if self.model.in_disaster else 0.1
-            if frac < self.model.homophily and self.step_counter % 2 == 0:
-                self.model.move_to_empty(self)
+            same_belief_neighbors = sum(1 for n in neighbors if n.belief == self.belief)
+            similarity_fraction = same_belief_neighbors / len(neighbors)
+            if similarity_fraction < self.model.homophily:
+                 # Chance to move if unhappy
+                 if self.step_counter % 2 == 0:
+                     self.model.move_to_empty(self)
             else:
-                self.model.happy += 1
-                if random.random() < move_prob:
-                    self.model.move_to_empty(self)
+                 # Agent is happy, increment the model's happy counter
+                 self.model.happy += 1
 
         self.step_counter += 1
