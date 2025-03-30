@@ -19,7 +19,7 @@ class RandomActivation:
         for agent in self.agents:
             agent.step()
 
-class Schelling(Model):
+class AiChatter(Model):
 
     human_type = 0
     bot_type = 1
@@ -28,8 +28,8 @@ class Schelling(Model):
         self,
         height: int = 20,
         width: int = 20,
-        density: float = 0.8,
-        bot_ratio: float = 0.1,
+        density: float = 0.6,
+        bot_ratio: float = 0.3,
         bot_influence: float = 0.3,
         seed=None,
         homophily: float = 0.5,
@@ -87,8 +87,8 @@ class Schelling(Model):
         )
          # Disaster timing setup
         self.schedule_steps = 0
-        self.disaster_start_step = random.randint(10, 30)
-        self.disaster_duration = 20
+        self.disaster_start_step = random.randrange(11, 30, 2)
+        self.disaster_duration = 21
         self.in_disaster = False
 
         self.datacollector.collect(self)
@@ -107,7 +107,7 @@ class Schelling(Model):
             self.remove_all_bots()
             self.in_disaster = False
             self.schedule_steps = 0
-            self.disaster_start = random.randint(10, 30)
+            self.disaster_start = random.randrange(11, 30, 2)
             
         self.schedule.step()
         self.datacollector.collect(self)

@@ -2,7 +2,7 @@ import solara
 
 # Import the simplified Schelling model (with no homophily/happiness).
 # Make sure this import points to your updated model file.
-from model import Schelling
+from model import AiChatter
 
 from mesa.visualization import (
     Slider,
@@ -51,8 +51,8 @@ model_params = {
         "value": 42,
         "label": "Random Seed",
     },
-    "density": Slider("Probability of a cell being occupied", 0.8, 0.1, 1.0, 0.1),
-    "bot_ratio": Slider("Probabiliy of an agent being a bot", 0.1, 0.0, 1.0, 0.05),
+    "density": Slider("Probability of a cell being occupied", 0.6, 0.1, 1.0, 0.1),
+    "bot_ratio": Slider("Probabiliy of an agent being a bot", 0.3, 0.0, 1.0, 0.05),
     "bot_influence": Slider("Bot influence", 0.3, 0.0, 1.0, 0.05),
     "homophily": Slider("Homophily Threshold", value=0.5, min=0.0, max=1.0, step=0.05),
     "width": 20,
@@ -60,7 +60,7 @@ model_params = {
 }
 
 # Create a model instance
-model1 = Schelling()
+model1 = AiChatter()
 
 # Create a plot component showing total disinfo and cumulative clusters over time (from DataCollector)
 DisinfoPlot = make_plot_component({"total_human_disinformed": "tab:red"})

@@ -27,7 +27,6 @@ class SocialMediaUser(Agent):
     def step(self):
         neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False)
         if not neighbors:
-            self.step_counter += 1
             return
 
         if self.type == self.bot_type:
