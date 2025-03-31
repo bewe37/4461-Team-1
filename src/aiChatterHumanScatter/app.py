@@ -2,7 +2,7 @@ import solara
 
 # Import the simplified Schelling model (with no homophily/happiness).
 # Make sure this import points to your updated model file.
-from model import AiChatter
+from model import Schelling
 
 from mesa.visualization import (
     Slider,
@@ -26,6 +26,15 @@ def get_disinfo_stats(model):
         f"**Happy Agents:** {model.happy}"
 
     )
+
+def get_disaster_indicator(model):
+    if model.in_disaster:
+        return solara.Markdown(
+            "<div style='background-color:red; padding:10px; text-align:center;'>"
+            "<h2 style='color:white;'>DISASTER OCCURRING!</h2></div>"
+        )
+    else:
+        return solara.Markdown("")
 
 
 def agent_portrayal(agent):
@@ -51,8 +60,8 @@ model_params = {
         "value": 42,
         "label": "Random Seed",
     },
-    "density": Slider("Probability of a cell being occupied", 0.6, 0.1, 1.0, 0.1),
-    "bot_ratio": Slider("Probabiliy of an agent being a bot", 0.3, 0.0, 1.0, 0.05),
+    "density": Slider("Probability of a cell being occupied", 0.8, 0.1, 1.0, 0.1),
+    "bot_ratio": Slider("Probabiliy of an agent being a bot", 0.15, 0.0, 1.0, 0.05),
     "bot_influence": Slider("Bot influence", 0.3, 0.0, 1.0, 0.05),
     "homophily": Slider("Homophily Threshold", value=0.5, min=0.0, max=1.0, step=0.05),
     "width": 20,
@@ -60,13 +69,13 @@ model_params = {
 }
 
 # Create a model instance
-model1 = AiChatter()
+model1 = Schelling()
 
 # Create a plot component showing total disinfo and cumulative clusters over time (from DataCollector)
-DisinfoPlot = make_plot_component({"total_human_disinformed": "tab:red"})
-InfoPlot = make_plot_component({"total_human_informed": "tab:red"})
-ClustersPlot = make_plot_component({"cumulative_clusters": "tab:blue"})  
-HappyPlot = make_plot_component({"happy_agents": "tab:green"})
+DisinfoPlot = make_plot_component({"Total Disinformed Human": "tab:red"})
+InfoPlot = make_plot_component({"Total Informed Human": "tab:red"})
+ClustersPlot = make_plot_component({"Cumulative Clusters": "tab:blue"})  
+HappyPlot = make_plot_component({"Happy Agents": "tab:green"})
 
 
 # Build the SolaraViz page
@@ -74,6 +83,7 @@ page = SolaraViz(
     model1,
     components=[
         make_space_component(agent_portrayal),
+        get_disaster_indicator,
         DisinfoPlot,
         InfoPlot,
         ClustersPlot,
